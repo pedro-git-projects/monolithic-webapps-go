@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 )
@@ -24,9 +25,32 @@ func About(responseWriter http.ResponseWriter, request *http.Request) {
 func addValues(x, y int) int {
 	return x + y
 }
+
+// Divide is the divide page handler, it writes a float32 that is the quotient of the divideValues function if
+// the divisor is greater or different than 0 and it writes an eror message otherwise
+func Divide(responseWriter http.ResponseWriter, request *http.Request) {
+	quotient, err := divideValues(100.0, 10.0)
+	if err != nil {
+		fmt.Fprintf(responseWriter, "%v", err)
+	} else {
+		fmt.Fprintf(responseWriter, "The quotient of the division is %.2f", quotient)
+	}
+}
+
+func divideValues(dividend, divisor float32) (float32, error) {
+	if divisor <= 0 {
+		err := errors.New("Cannot divide by zero!")
+		return 0, err
+	}
+	quotient := dividend / divisor
+	return quotient, nil
+
+}
+
 func main() {
 	http.HandleFunc("/", Home)
 	http.HandleFunc("/about", About)
+	http.HandleFunc("/divide", Divide)
 
 	fmt.Printf("Starting application on port %s\n", portNumber)
 	/*
